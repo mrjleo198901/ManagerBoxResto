@@ -1,0 +1,34 @@
+:host /deep/ .ng2-smart-filter input{
+  height: 35px;
+  text-align: center;
+}
+:host /deep/ .ng2-smart-filter select{
+  text-align: center;
+}
+:host /deep/ .ui-dialog-titlebar{
+  font-size: 18px;
+  text-align: center;
+}
+
+/* ng2-smart-table
+:host /deep/ ng2-smart-table table {
+  box-shadow: 0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12) !important;
+  overflow-y: hidden
+}*/
+
+.example-radio-button {
+  margin-top : 5px;
+  margin-left : 18px;
+}
+
+#addIcon {
+  color: #2196F3;
+  cursor: pointer;
+}
+
+:host /deep/ .ui-state-disabled, .ui-widget:disabled {
+  opacity: 0.75;
+  filter: Alpha(Opacity=35);
+  background-image: none;
+  cursor: default !important;
+}

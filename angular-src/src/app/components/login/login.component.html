@@ -1,0 +1,113 @@
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header" style="padding: 0; margin-top: 20px">
+  <div class="col-lg-6" style="padding: 0">
+    <h2>Ingresar</h2>
+  </div>
+</div>
+<div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
+  <div class="panel panel-default">
+    <!--<div class="panel-heading">
+      <label>Credenciales de Usuario</label>
+    </div>-->
+    <div class="panel-body">
+      <form (submit)="onLoginSubmit()">
+
+        <div class="form-group">
+          <label>Username</label>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1"><i class="fa fa-user" aria-hidden="true"></i></span>
+            <input type="text" class="form-control" [(ngModel)]="username" id="username" name="username" aria-describedby="basic-addon1"
+              placeholder="Nombre de usuario">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon2"><i class="fa fa-lock" aria-hidden="true"></i></span>
+            <input type="password" class="form-control" [(ngModel)]="password" name="password" id="password" aria-describedby="basic-addon2"
+              placeholder="Clave de usuario">
+          </div>
+        </div>
+
+        <fieldset data-role="controlgroup">
+          <input type="checkbox" name="chck-rememberme" id="chck-rememberme" [(ngModel)]="chckRememberme" checked="" style="font-size: 18px">
+          <label for="chck-rememberme">Recuerdame</label>
+        </fieldset>
+
+        <p class="mc-top-margin-1-5"><a (click)="showDialog()">¿No puedes acceder a tu cuenta?</a></p>
+
+        <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12" style="text-align: center">
+          <input type="submit" class="btn btn-primary btn-block" value="Login" [disabled]="false">
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--<app-dialog [(visible)]="display">
+  <h3 style="text-align: center">
+    Recuperar Contraseña
+  </h3>
+  <hr>
+  <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+    <label for="desCP" style="display: inline-block">Correo Electrónico*:</label>
+    <input type="text" [(ngModel)]="correoRecuperacion" (ngModelChange)="onChangeCorreo()" id="correo" name="correo" placeholder="Ingresa tu correo de recuperación"
+      class="form-control" tooltip="A este correo se enviará tu clave personal." tooltipPlacement="bottom">
+    <br>
+  </div>
+  <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" style="text-align: center">
+    <hr>
+    <button class="btn btn-primary" (click)="sendEmail()" style="width: 25%" [disabled]="!flagCorreo">Enviar</button>
+    <button class="btn btn-default" (click)="display = !displayd" style="width: 25%">Cancelar</button>
+  </div>
+</app-dialog>-->
+
+<p-dialog header="Recuperar Contraseña" [(visible)]="display" modal="modal" width="550" [responsive]="true">
+  <div class="row">
+    <div class="col-lg-5 col-lg-offset-1 col-md-5 col-md-offset-1">
+      <label for="ciA">Usuario (Cédula)*:</label>
+      <input type="text" [(ngModel)]="cedula" id="ciA" name="ciA" (ngModelChange)="onChangeCI()" placeholder="Cedula de usuario"
+        class="form-control input-sm" maxlength="10" onkeypress='return event.charCode >= 48 && event.charCode <= 57' tooltip="Solo se permiten NUMEROS."
+        tooltipPlacement="bottom">
+    </div>
+    <div class="col-lg-5 col-md-5 col-sm-5" *ngIf="showMessages">
+      <div class="ui-message ui-messages-success ui-corner-all" *ngIf="flagFindUser" style="margin-top: 25px">
+        <i class="fa fa-check"></i>&nbsp;Usuario Encontrado.
+      </div>
+      <div class="ui-message ui-messages-error ui-corner-all" *ngIf="!flagFindUser" style="margin-top: 25px">
+        <i class="fa fa-close"></i>&nbsp;Usuario No Encontrado.
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1"><br>
+      <label>Nombres Completos:</label>
+      <input type="text" [(ngModel)]="nombres" id="nombres" name="nombres" (ngModelChange)="onChangeNombres()" placeholder="Nombres de usuario"
+        class="form-control input-sm" maxlength="10" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+      event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+        tooltip="Solo se permiten LETRAS." tooltipPlacement="bottom" readonly>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1"><br>
+      <label for="desCP" style="display: inline-block">Correo electrónico de recuperación*:</label>
+      <input type="text" [(ngModel)]="correoRecuperacion" (ngModelChange)="onChangeCorreo()" id="correo" name="correo" placeholder="Ingresa tu correo de recuperación"
+        class="form-control input-sm" tooltip="A este correo se enviará tu clave personal." tooltipPlacement="bottom" [readonly]="!flagFindUser">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1"><br>
+      <p>
+        <b>Nota:</b> El sistema va a generar una nueva clave aleatoria provisional. ¿Estas seguro de resetear tu clave personal?
+      </p>
+    </div>
+  </div>
+
+  <p-footer>
+    <button type="button" pButton icon="fa-check" (click)="display=false;sendEmail()" [disabled]="!flagCorreo" label="Si"></button>
+    <button type="button" pButton icon="fa-close" (click)="display=false" label="No"></button>
+  </p-footer>
+</p-dialog>
+
+<!--<app-card [displayOpenCaja]="displayOpenCaja"></app-card>-->

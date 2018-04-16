@@ -1,0 +1,370 @@
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header" style="padding: 0; margin-top: 20px" (window:resize)="onResize($event)">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="padding: 0" [ngStyle]='{"text-align": textAlignTitle}'>
+        <h2>Gestión de Personal</h2>
+    </div>
+</div>
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0">
+    <div class="row" style="margin-left: 0px; margin-right: 0px">
+        <div (click)="$event.preventDefault()">
+            <tabset [justified]="true">
+
+                <tab heading="Cargo Personal" (select)="hideDetails()">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <hr>
+                        <h3 style="text-align:center">Cargo Personal</h3>
+                        <hr>
+                    </div>
+                    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12 col-xs-12">
+                        <ng2-smart-table id="dtCargoPersonal" [settings]="settingsCargPer" [source]="sourceCargoPer" (create)="showDialogCargoPerAdd = true;onCreateCargoPer($event);setCursorCargoPerAdd()"
+                            (edit)="showDialogCargoPerUp = true;onCargoPerUpdate($event);setCursorCargoPerUp()" (delete)="onDeleteCP($event)">
+                        </ng2-smart-table>
+                        <hr>
+                    </div>
+                </tab>
+
+                <tab heading="Personal" [active]="true">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <hr>
+                        <h3 style="text-align:center">Personal</h3>
+                        <hr>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <ng2-smart-table id="dtPersonal" [settings]="settingsPer" [source]="sourcePer" (create)="showDialogPerAdd = false;onCreatePer($event);setCursorPerAdd()"
+                            (edit)="showDialogPerUp = !showDialogPerUp;onPerUpdate($event);setCursorPerAdd()" (delete)="onDeleteP($event)"
+                            (userRowSelect)="showPersonal($event)">
+                        </ng2-smart-table>
+                        <hr>
+                    </div>
+                </tab>
+
+                <tab heading="Log de Eventos" (select)="hideDetails()">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <hr>
+                        <h3 style="text-align:center">Detalle de Actividad de Usuarios</h3>
+                        <hr>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                        <h4>Usuario:</h4>
+                        <div class="input-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <span class="input-group-addon input-sm"><i class="fa fa-user" aria-hidden="true"></i></span>
+                            <select [(ngModel)]="selected_user" class="form-control input-sm" style="z-index: 1;" tabindex="1">
+                            <option value="Todas" selected="selected">Todos</option>
+                            <option *ngFor="let c of listaPersonal" [ngValue]="c">{{c.nombres}}&nbsp;{{c.apellidos}}&nbsp;--&nbsp;{{c.cedula}}</option>
+                          </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                        <h4>Período: </h4>
+                        <p-calendar [(ngModel)]="fecha_desde" [locale]="es" dateFormat="dd/mm/yy" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true"
+                            yearRange="1950:2030" dataType="string" [readonlyInput]="true" [showTime]="true">
+                        </p-calendar>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                        <h4 style="color: white">Período: </h4>
+                        <p-calendar [(ngModel)]="fecha_hasta" [locale]="es" dateFormat="dd/mm/yy" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true"
+                            yearRange="1950:2030" dataType="string" [readonlyInput]="true" [showTime]="true">
+                        </p-calendar>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                        <h4 style="color: white">Período: </h4>
+                        <a class="btn btn-primary btn-sm" (click)="generateLog()" style="width:100%">Generar LOG</a><br>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"><br>
+                        <iframe id="iFramePDF" type="application/pdf" width="100%" height="650" style="position:relative;z-index:1; border: solid 2px; border-color: #CDC8CE">
+                            Your Browser doesn´t support iframes
+                        </iframe>
+                        <hr>
+                    </div>
+                </tab>
+
+            </tabset>
+        </div>
+    </div>
+
+    <div class="row" style="margin-left: 15px; margin-right: 15px">
+        <br>
+        <!-- Mostrar cliente -->
+        <p-panel header="Datos Personal" *ngIf="flagUserFound">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <br>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div style="text-align: center">
+                                <label>Datos del empleado</label>
+                            </div>
+                            <br><label>Nombre:</label>&nbsp;{{showPersona.nombres}}&nbsp;{{showPersona.apellidos}}
+                            <br><label>Cedula:</label>&nbsp;{{showPersona.cedula}}
+                            <br><label>Email:</label>&nbsp;{{showPersona.email}}
+                            <br><label>Telefono:</label>&nbsp;{{showPersona.telefono}}
+                            <br><label>Fecha de Nacimiento:</label>&nbsp;{{showPersona.fecha_nacimiento}}
+                            <br><label>Sexo:</label>&nbsp;{{showPersona.sexo}}
+                            <br><label>Cargo:</label>&nbsp;{{showPersona.id_cargo}}
+                        </div>
+                        <br>
+                    </div>
+
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <br>
+                    <div class="panel panel-default" style="min-height: 261px">
+                        <div class="panel-body">
+                            <div style="text-align: center">
+                                <label style="text-align: center">Módulos Disponibles</label><br>
+                            </div>
+                            <div class="form-check" *ngFor="let tag of tags; let i = index;">
+                                <md-checkbox [(ngModel)]="tag.checked" [color]="color">{{tag.name}}</md-checkbox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+        <hr>
+    </div>
+</div>
+
+<!-- Add cargo personal -->
+<p-dialog [(visible)]="showDialogCargoPerAdd" modal="modal" width="500" [responsive]="true">
+    <p-header>
+        Registro Cargo Personal
+    </p-header>
+    <div class="ui-g ui-fluid">
+        <!-- Nombre  -->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="desCP" style="display: inline-block">Nombre:</label>
+            <input type="text" [(ngModel)]="descripcionCargoPersonal" (ngModelChange)="onChangeCargPer()" id="descCargoPerAdd" name="descCargoPerAdd"
+                placeholder="Nombre cargo" class="form-control">
+            <br>
+        </div>
+        <!-- Estado  -->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="est" style="display: inline-block">Estado</label>
+            <select [(ngModel)]="selectEstado" id="estadoCar" name="estadoCar" class="form-control input">
+                    <option *ngFor="let c of listaEstado" [ngValue]="c">{{c.estado}}</option>
+            </select>
+            <br>
+        </div>
+        <!--Descripción-->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="est" style="display: inline-block">Descripción</label>
+            <input type="text" [(ngModel)]="descripcion" (ngModelChange)="onChangeDesc()" id="desc" placeholder="Descripción cargo" class="form-control">
+            <br>
+        </div>
+        <!-- Buttons -->
+        <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" style="text-align: center">
+            <hr>
+            <button class="btn btn-primary" style="font-size: 11px" (click)="onAddCargoPersonalSubmit()">Registrar</button>
+            <button class="btn btn-default" style="font-size: 11px" (click)="showDialogCargoPerAdd = false">Cancelar</button>
+        </div>
+    </div>
+</p-dialog>
+
+
+<!-- Update cargo personal -->
+<p-dialog [(visible)]="showDialogCargoPerUp" modal="modal" width="500" [responsive]="true">
+    <p-header>
+        Actualizar Cargo Personal
+    </p-header>
+    <div class="ui-g ui-fluid">
+        <!-- Nombre -->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="descTPC" style="display: inline-block">Descripción</label>
+            <input type="text" [(ngModel)]="descripcionCargoPersonal" (ngModelChange)="onChangeCargPer()" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+                event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+                id="descCargoPerAdd" name="descCargoPerAdd" placeholder="Descripción cargo" class="form-control">
+            <br>
+        </div>
+        <!-- Estado  -->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="est" style="display: inline-block">Estado</label>
+            <select [(ngModel)]="selectEstado" id="estadoCar" name="estadoCar" class="form-control input">
+                    <option *ngFor="let c of listaEstado" [ngValue]="c">{{c.estado}}</option>
+                </select>
+            <br>
+        </div>
+        <!--Descripción-->
+        <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <label for="est" style="display: inline-block">Descripción</label>
+            <input type="text" [(ngModel)]="descripcion" (ngModelChange)="onChangeDesc()" id="desc" placeholder="Descripción cargo" class="form-control">
+            <br>
+        </div>
+        <!-- Buttons -->
+        <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" style="text-align: center">
+            <hr>
+            <button class="btn btn-primary" style="font-size: 11px" (click)="onUpdateTPSubmit()">Actualizar</button>
+            <button class="btn btn-default" style="font-size: 11px" (click)="showDialogCargoPerUp = false">Cancelar</button>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Add personal -->
+<app-dialog [(visible)]="showDialogPerAdd" (visibleChange)="changePerAdd($event)" #dialog2="dialog">
+    <h3 style="text-align: center">
+        Agregar Personal
+    </h3>
+    <hr>
+    <!-- Cedula -->
+    <div class="col-lg-6 col-md-6">
+        <label for="ci" style="display: inline-block">Cédula</label>
+        <input type="text" [(ngModel)]="cedula" (ngModelChange)="onChange()" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+            id="ci" name="ci" placeholder="Cédula" class="form-control input-sm" maxlength="10">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Telefono -->
+        <label for="telefono">Teléfono/Celular</label>
+        <input type="text" [(ngModel)]="telefono" (ngModelChange)="onChange()" id="telefono" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+            name="telefono" placeholder="Teléfono" class="form-control  input-sm" maxlength="10" minlength="9">
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Nombres -->
+        <label class="cols-sm-2 control-label" for="username">Nombres</label>
+        <input type="text" [(ngModel)]="nombres" (ngModelChange)="onChange()" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+            event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+            id="nombres" name="nombres" placeholder="Nombres" class="form-control  input-sm">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Apellidos -->
+        <label class="cols-sm-2 control-label" for="apellido">Apellidos</label>
+        <input type="text" [(ngModel)]="apellidos" (ngModelChange)="onChange()" id="apellidos" name="apellidos" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+            event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+            placeholder="Apellidos" class="form-control  input-sm">
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- E-mail -->
+        <label class="control-label" for="email">E-mail</label>
+        <input type="text" [(ngModel)]="email" (ngModelChange)="onChange()" id="email" name="email" placeholder="Correo" class="form-control  input-sm">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Sexo -->
+        <label class="control-label" for="fecha">Sexo</label><br>
+        <div class="radio">
+            &nbsp;&nbsp;&nbsp;<label class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="mode" [value]="1" [(ngModel)]="sexo">
+                Masculino&nbsp;&nbsp;&nbsp;&nbsp;
+                </label>
+            <label class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="mode" [value]="2" [(ngModel)]="sexo">
+                Femenino
+                </label>
+        </div>
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6" (click)="showCalendar()">
+        <!-- Fecha de nacimiento -->
+        <label for="est" style="display: inline-block">Fecha de Nacimiento</label>
+        <div class="input-group col-lg-12 col-md-12">
+            <input type="text" value="{{ getDate() | date:'shortDate'}}" [(ngModel)]="fechaNacimientoString" id="fecha" name="fecha"
+                placeholder="MM/DD/YYYY" class="form-control  input-sm">
+            <span class="input-group-addon input-sm" id="btnCalendar"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+        </div>
+    </div>
+
+    <!-- Cargo  -->
+    <div class="col-lg-6 col-md-6">
+        <label for="est" style="display: inline-block">Cargo</label>
+        <select [(ngModel)]="selectCargoPer" id="cargoPer" name="cargoPer" class="form-control input-sm">
+                <option *ngFor="let c of listaCargoPersonal" [ngValue]="c">{{c.descripcion_cargo_personal}}</option>
+            </select>
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6" *ngIf="showDatepicker">
+        <!--calendar-->
+        <div style="display:inline-block;text-align: center">
+            <datepicker [(ngModel)]="dt" [showWeeks]="false"></datepicker>
+        </div>
+    </div>
+    <br>
+    <!-- Button -->
+    <div class="form-group" style="text-align: center">
+        <button class="btn btn-primary" (click)="onAddPerSubmit()" style="width: 25%">Registrar</button>
+        <button class="btn btn-default" (click)="showDialogPerAdd = !showDialogPerAdd" style="width: 25%">Cancelar</button>
+    </div>
+</app-dialog>
+<!-- UPDATE PERSONAL -->
+<app-dialog [(visible)]="showDialogPerUp" (visibleChange)="changePerUp($event)" #dialog3="dialog">
+    <h3 style="text-align: center">
+        Actualizar Personal
+    </h3>
+    <hr>
+    <!-- Cedula -->
+    <div class="col-lg-6 col-md-6">
+        <label for="ci" style="display: inline-block">Cédula</label>
+        <input type="text" [(ngModel)]="cedula" (ngModelChange)="onChange()" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+            id="ci" name="ci" placeholder="Cédula" class="form-control input-sm" maxlength="10">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Telefono -->
+        <label for="telefono">Teléfono/Celular</label>
+        <input type="text" [(ngModel)]="telefono" (ngModelChange)="onChange()" id="telefono" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+            name="telefono" placeholder="Teléfono" class="form-control  input-sm" maxlength="10" minlength="9">
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Nombres -->
+        <label class="cols-sm-2 control-label" for="username">Nombres</label>
+        <input type="text" [(ngModel)]="nombres" (ngModelChange)="onChange()" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+            event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+            id="nombres" name="nombres" placeholder="Nombres" class="form-control  input-sm">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Apellidos -->
+        <label class="cols-sm-2 control-label" for="apellido">Apellidos</label>
+        <input type="text" [(ngModel)]="apellidos" (ngModelChange)="onChange()" id="apellidos" name="apellidos" onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+            event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+            placeholder="Apellidos" class="form-control  input-sm">
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- E-mail -->
+        <label class="control-label" for="email">E-mail</label>
+        <input type="text" [(ngModel)]="email" (ngModelChange)="onChange()" id="email" name="email" placeholder="Correo" class="form-control  input-sm">
+    </div>
+    <div class="col-lg-6 col-md-6">
+        <!-- Sexo -->
+        <label class="control-label" for="fecha">Sexo</label><br>
+        <div class="radio">
+            &nbsp;&nbsp;&nbsp;<label class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="mode" [value]="1" [(ngModel)]="sexo">
+                Masculino&nbsp;&nbsp;&nbsp;&nbsp;
+                </label>
+            <label class="form-check-inline">
+                    <input class="form-check-input" type="radio" name="mode" [value]="2" [(ngModel)]="sexo">
+                Femenino
+                </label>
+        </div>
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6" (click)="showCalendar()">
+        <!-- Fecha de nacimiento -->
+        <label for="est" style="display: inline-block">Fecha de Nacimiento</label>
+        <div class="input-group col-lg-12 col-md-12">
+            <input type="text" [(ngModel)]="fechaNacimientoString" id="fecha" name="fecha" placeholder="DD/MM/YYYY" class="form-control  input-sm">
+            <span class="input-group-addon input-sm" id="btnCalendar"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+        </div>
+    </div>
+
+    <!-- Cargo personal  -->
+    <div class="col-lg-6 col-md-6">
+        <label for="est" style="display: inline-block">Cargo</label>
+        <select [(ngModel)]="selectCargoPer" id="cargoPer" name="cargoPer" class="form-control input-sm">
+                <option *ngFor="let c of listaCargoPersonal" [ngValue]="c">{{c.descripcion_cargo_personal}}</option>
+            </select>
+        <br>
+    </div>
+    <div class="col-lg-6 col-md-6" *ngIf="showDatepicker">
+        <!--calendar-->
+        <div style="display:inline-block;text-align: center">
+            <datepicker [(ngModel)]="dt" [showWeeks]="false" (click)="hideCalendar()"></datepicker>
+        </div>
+    </div>
+    <br>
+    <!-- Button -->
+    <div class="form-group" style="text-align: center">
+        <button class="btn btn-primary" (click)="onUpdatePerSubmit()" style="width: 25%">Actualizar</button>
+        <button class="btn btn-default" (click)="showDialogPerUp = !showDialogPerUp" style="width: 25%">Cancelar</button>
+    </div>
+</app-dialog>

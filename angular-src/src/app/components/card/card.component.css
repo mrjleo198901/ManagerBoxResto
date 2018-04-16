@@ -1,0 +1,109 @@
+.spinner {
+  width: 80px;
+  padding-left: -20px;
+}
+.spinner input {
+  text-align: right;
+  font-size: 14px;
+}
+.input-group-btn-vertical {
+  position: relative;
+  white-space: nowrap;
+  width: 1%;
+  vertical-align: middle;
+  display: table-cell;
+}
+.input-group-btn-vertical > .btn {
+  display: block;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px;
+  margin-left: -1px;
+  position: relative;
+  border-radius: 0;
+}
+.input-group-btn-vertical > .btn:first-child {
+  border-top-right-radius: 4px;
+}
+.input-group-btn-vertical > .btn:last-child {
+  margin-top: -2px;
+  border-bottom-right-radius: 4px;
+}
+.input-group-btn-vertical i{
+  position: absolute;
+  top: 0;
+  left: 4px;
+}
+:host /deep/ .ui-blockui{
+  z-index: 1;
+}
+:host /deep/ .ui-dialog-titlebar{
+  font-size: 18px;
+  text-align: center;
+}
+:host /deep/ .ng2-smart-filter input{
+  height: 35px;
+  text-align: center;
+}
+.example-radio-button {
+  margin-top : 5px;
+  margin-left : 18px;
+}
+select {
+  text-align: center;
+  text-align-last: center;
+  /* webkit*/
+}
+option {
+  text-align: center;
+  text-align-last: center;
+}
+
+.list-group-item {
+  -webkit-column-count: 2;
+     -moz-column-count: 2;
+          column-count: 2;
+          padding: 3px 0px 0px 10px;
+}
+.list-group {
+  margin-bottom: 0px;
+}
+
+#comprasDetail{
+  cursor: pointer;
+}
+
+.fa-flag:hover {
+  color: #495555;
+  /*font-size: 2em;*/
+  cursor: pointer;
+}
+
+/*:host /deep/ .ui-fluid .ui-inputtext {
+  color: red;
+}*/
+
+.one {
+  color: red;
+}
+.vcenter {
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+}
+
+#addIcon {
+  color: #2196F3;
+  cursor: pointer;
+}
+
+.tooltip.customClass .tooltip-inner {
+  color: #880000;
+  background-color: #ffff66;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+
+.ui-confirmdialog-message {
+  white-space: pre-line;
+}

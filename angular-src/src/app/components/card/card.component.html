@@ -1,0 +1,1649 @@
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header" style="padding: 0; margin-top: 20px" (window:resize)="onResize($event)">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="padding: 0" [ngStyle]='{"text-align": textAlignTitle}'>
+    <h2>Gestión de Tarjetas</h2>
+  </div>
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" [ngStyle]='{"text-align": textAlign}'>
+    <button type="button" pButton (click)="openCloseCaja()" label="{{btnLabel}}" [ngStyle]='{"margin-top": "20px", "margin-bottom": marginBot, "font-size": "14px", "width": "50%", "background-color": btnClass, "border-color": btnClass}'></button>
+    <button id="close" *ngIf="!blockCaja" (click)="setInOutValues()" tooltip="Realizar intercambios de efectivo entre cajas"
+      tooltipPlacement="bottom" tooltipAnimation=false><i class="fa fa-money fa-lg" aria-hidden="true"></i></button>
+  </div>
+</div>
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0">
+  <div (click)="$event.preventDefault()">
+    <tabset [justified]="true">
+      <!-- TAB OPEN -->
+      <tab heading="Apertura" (select)="alertMe1(1)" [active]="true">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+          <h3 style="text-align: center">Apertura de tarjeta de consumo</h3>
+          <hr>
+        </div>
+        <!--LEFT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel #pnlCedula header="Datos del Cliente" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Control Cliente-->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label for="cedula" class="cols-sm-2 control-label">Tipo de documento</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <span class="input-group-addon"><i class="fa fa-id-card" aria-hidden="true"></i></span>
+                      <select [(ngModel)]="selected_tipo_doc" (ngModelChange)="onChangeTipoDoc()" id="tipoDoc" name="tipoDoc" class="form-control"
+                        style="z-index: 1;" tabindex="1">
+                        <option *ngFor="let c of tipo_documentos" [ngValue]="c">{{c.label}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" *ngIf="tipoDoc"><br>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <p-checkbox name="group1" binary="true" label="¿Usar verificador de CI?" [(ngModel)]="checked" inputId="ny" [style]="{'margin-bottom':'5px'}"
+                        tabindex="2"></p-checkbox>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group" *ngIf="!tipoDoc"><br>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <p style="color: white; font-size: 10px">Space</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label for="cedula" class="cols-sm-2 control-label">Nro. Documento</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1"
+                      *ngIf="tipoDoc">
+                      <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="cedula" (ngModelChange)="onChangeCILength($event)" (click)="$event.target.select()" type="text" class="form-control"
+                        name="cedulaNew" #cedulaNew id="cedulaNew" placeholder="Cédula del cliente" style="z-index: 1;" maxlength="10"
+                        onkeypress='return event.charCode >= 48 && event.charCode <= 57' tabindex="3" [disabled]="blockCaja"
+                      />
+                      <span class="input-group-addon" id="basic-addon3"><i class="fa fa-search" aria-hidden="true"></i></span>
+                      <span (click)=" setCursorAdd()" class="input-group-addon" id="basic-addon4"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                    </div>
+
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1"
+                      *ngIf="!tipoDoc">
+                      <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="passport" (ngModelChange)="onChangePassLength($event)" (click)="$event.target.select()" type="text" class="form-control"
+                        name="passNew" #passNew id="passNew" placeholder="Nro. pasaporte del cliente" style="z-index: 1;" maxlength="15"
+                        onkeypress='return event.charCode >= 48 && event.charCode <= 57' tabindex="4" [disabled]="blockCaja"
+                      />
+                      <span class="input-group-addon" id="basic-addonPass1" (click)=" searchPass()"><i class="fa fa-search" aria-hidden="true"></i></span>
+                      <span class="input-group-addon" id="basic-addonPass2" (click)=" setCursorAdd()"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Mostrar cliente -->
+                <div class="form-group" style="margin: 0px;"><br>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label for="datosCliente">Datos del cliente</label>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="flagUserFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <ul class="list-group" id="limheight">
+                            <li class="list-group-item">
+                              <p>Nombre:</p>
+                              {{searchUser.nombre}}&nbsp;{{searchUser.apellido}}
+                            </li>
+                            <li class="list-group-item">
+                              <p>Fecha de Nacimiento:</p>
+                              {{searchUser.fecha_nacimiento}}
+                            </li>
+                            <li class="list-group-item">
+                              <p>Tipo Cliente:</p>
+                              {{searchUser.id_tipo_cliente}}
+                            </li>
+                            <li class="list-group-item">
+                              <p>Crédito:</p>
+                              $&nbsp;{{searchUser.cedula}}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="!flagUserFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <label id="lblNotFound" style="color: #FF4B36; font-size: 14px">{{nfLael}}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!--RIGHT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel #pnlTarjeta header="Datos de Tarjeta" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Validacion Tarjeta -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label>Numero de tarjeta</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="cardNumber" (ngModelChange)="onChangeOpen($event)" (click)="$event.target.select()" type="text" class="form-control"
+                        name="numero" id="numero" placeholder="Codigo único de tarjeta" [disabled]="!flagUserFound" style="z-index: 1;"
+                        tabindex="5" maxlength="9" onkeypress='return event.charCode === 241 || event.charCode >= 48 && event.charCode <= 57 || event.charCode === 95 || event.charCode === 209'>
+                      <span class="input-group-addon" id="basic-addon1"><i class="fa fa-check" aria-hidden="true"></i></span>
+                      <span class="input-group-addon" id="basic-addon2"><i class="fa fa-times" aria-hidden="true"></i></span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Limite de Consumo -->
+                <div class="panel-body" style="padding-left: 0; padding-right: 0;">
+                  <div class="form-group" style="margin: 0px;">
+                    <div class="row">
+                      <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                        <label>Límite de consumo</label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                        <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                        <input [(ngModel)]="limCons" type="text" currencyMask type="text" [options]="{ prefix: ''}" id="limCons" name="limCons" class="form-control"
+                          placeholder="0.00" (click)="$event.target.select()" tabindex="6" style="margin: 0px" [disabled]="!flagUserFound">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cover & Cantidad de personas -->
+                <div class="form-group" style="margin: 0px;"><br>
+
+                  <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad">
+                      <label>Cover</label>
+                    </div>
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad">
+                      <label>&nbsp;&nbsp;Cantidad de personas</label>
+                    </div>
+                  </div>
+                  <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad">
+                      <p style="font-size: 12px; padding-top: 5px">Cover Mujeres</p>
+                    </div>
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad" style="padding-right: 0; padding-top: 0;">
+                      <p style="font-size: 12px; padding-top: 5px">&nbsp;&nbsp;&nbsp;Nro. Mujeres</p>
+                    </div>
+                    <div class="ui-g-6 ui-md-6" style="padding-left: 0; padding-top: 0;padding-right: 0">
+                      <ng-template #toolTipTemplateTP>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                          <p>Nro. Mujeres:</p>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                          <p>Precio Mujeres:</p>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                          <div style="margin-top: -5px;">
+                            {{selectedCoverM.numMujeres}}
+                          </div>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                          <div style="margin-top: -5px;">
+                            $ {{selectedCoverM.precioMujeres | number : '1.2-2'}}
+                          </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: 5px">
+                          <p>Producto/s Mujer:</p>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: -5px;">
+                          <div style="margin-top: -5px;" *ngFor="let prod of selectedCoverM.productoMujeres;">
+                            - {{prod.cantidad}} {{prod.label}}
+                          </div>
+                          <div style="margin-top: -5px;" *ngIf="selectedCoverM.productoMujeres.length==0">-</div>
+                        </div>
+                        <p style="color: #3E3F3A;">sp</p>
+                      </ng-template>
+                      <select [(ngModel)]="selectedCoverM" (ngModelChange)="onChangeSelectCoverM($event)" id="coverM" class="form-control input-sm"
+                        style="z-index: 1" tabindex="7" [tooltipHtml]="toolTipTemplateTP" tooltipPlacement="left" tooltipAnimation=false
+                        [disabled]="!flagUserFound">
+                        <option *ngFor="let c of lstCoversM" [ngValue]="c">{{c.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="input-group ui-g-4 ui-md-4" style="padding-right: 0; padding-top: 0;">
+                      <input [(ngModel)]="cantMujeres" type="text" class="form-control input-sm" name="cantMujeres" id="cantMujeres" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                        maxlength="2" min="0" [disabled]="!flagUserFound" style="z-index: 1" (click)="$event.target.select()"
+                        readonly>
+                      <div class="input-group-btn-vertical">
+                        <button id="addW" (click)="plusWoman()" class="btn btn-default" tabindex="8" [disabled]="!flagUserFound" type="button" style="outline: 0"><i class="fa fa-caret-up"></i></button>
+                        <button id="lessW" (click)="lessWoman()" class="btn btn-default" tabindex="9" [disabled]="!flagUserFound" type="button" style="outline: 0"><i class="fa fa-caret-down"></i></button>
+                      </div>
+                    </div>
+                    <div class="input-group ui-g-2 ui-md-2" style="padding-top: 0">
+                      <i id="addIcon" (click)="addCoverM()" class="fa fa-plus-square fa-2x" tabindex="10" aria-hidden="true" style="padding-top: 2px"></i>
+                    </div>
+                  </div>
+                  <div class="input-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad">
+                      <p style="font-size: 12px; padding-top: 5px">Cover Hombres</p>
+                    </div>
+                    <div class="ui-g-6 ui-md-6 ui-g-nopad">
+                      <p style="font-size: 12px; padding-top: 5px">&nbsp;&nbsp;&nbsp;Nro. Hombres</p>
+                    </div>
+                    <div class="ui-g-6 ui-md-6" style="padding-left: 0; padding-top: 0;padding-right: 0">
+                      <ng-template #toolTipTemplateTP1>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                          <p>Nro. Hombres:</p>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                          <p>Precio Hombres:</p>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                          <div style="margin-top: -5px;">
+                            {{selectedCoverH.numHombres}}
+                          </div>
+                        </div>
+                        <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                          <div style="margin-top: -5px;">
+                            $ {{selectedCoverH.precioHombres | number : '1.2-2'}}
+                          </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: 5px">
+                          <p>Producto/s Hombre:</p>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: -5px">
+                          <div style="margin-top: -5px;" *ngFor="let prod of selectedCoverH.productoHombres;">
+                            - {{prod.cantidad}} {{prod.label}}
+                          </div>
+                          <div style="margin-top: -5px;" *ngIf="selectedCoverH.productoHombres.length==0;else other">-</div>
+                        </div>
+                        <p style="color: #3E3F3A;">sp</p>
+                      </ng-template>
+                      <select [(ngModel)]="selectedCoverH" (ngModelChange)="onChangeSelectCoverH($event)" id="coverH" class="form-control input-sm"
+                        style="z-index: 1" tabindex="11" [disabled]="!flagUserFound" [tooltipHtml]="toolTipTemplateTP1" tooltipPlacement="left">
+                        <option *ngFor="let c of lstCoversH" [ngValue]="c">{{c.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="input-group ui-g-4 ui-md-4" style="padding-right: 0; padding-top: 0;">
+                      <input [(ngModel)]="cantHombres" type="text" class="form-control input-sm" name="cantHombres" id="cantHombres" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                        maxlength="2" min="0" [disabled]="!flagUserFound" style="z-index: 1" (click)="$event.target.select()"
+                        readonly>
+                      <div class="input-group-btn-vertical">
+                        <button id="addM" (click)="plusMan()" class="btn btn-default" tabindex="12" [disabled]="!flagUserFound" type="button" style="outline: 0"><i class="fa fa-caret-up"></i></button>
+                        <button id="lessM" (click)="lessMan()" class="btn btn-default" tabindex="13" [disabled]="!flagUserFound" type="button" style="outline: 0"><i class="fa fa-caret-down"></i></button>
+                      </div>
+                    </div>
+                    <div class="input-group ui-g-2 ui-md-2" style="padding-top: 0">
+                      <i id="addIcon" class="fa fa-plus-square fa-2x" tabindex="14" (click)="addCoverH()" aria-hidden="true" style="padding-top: 2px"></i>
+                    </div>
+                  </div>
+                </div>
+                <br><br>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!-- BOTTOM SIDE-->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <br>
+          <p-panel #pnlPromos header="Resúmen apertura nueva tarjeta" [style]="{'z-index':'1'}">
+            <!-- Total Covers -->
+            <div class="panel-body" style="padding-left: 0; padding-right: 0;">
+              <div class="form-group" style="margin: 0px;">
+                <div class="input-group col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                  <div class="ui-g-4 ui-md-4 ui-g-nopad" style="text-align: right;">
+                    <label style="padding-top: 12.5px; padding-right: 10px;">Total Covers:</label>
+                  </div>
+                  <div class="ui-g-8 ui-md-8 ui-g-nopad">
+                    <div class="input-group">
+                      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="totalCovers" type="text" currencyMask type="text" [options]="{ prefix: ''}" id="limCons" name="limCons"
+                        class="form-control" placeholder="0.00" (click)="$event.target.select()" style="margin: 0px" disabled>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p-dataTable [value]="lstResumenOpen" [responsive]="true" [(selection)]="selectedPromos" [paginator]="true" [rows]="5">
+
+              <p-column [style]="{'width':'5%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  <button pButton type="button" (click)="deleteRowCover(index)" icon="fa-close" class="ui-button-danger"></button>
+                </ng-template>
+              </p-column>
+
+              <p-column field="nombre" header="Nombre cover" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'25%'}">
+              </p-column>
+
+              <p-column field="cantidad" header="Cant. personas" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+              </p-column>
+
+              <p-column field="genero" header="Género" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+              </p-column>
+
+              <p-column field="producto" header="Productos" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'25%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  <div *ngFor="let prod of car.producto;">
+                    <span class="badge" style="margin-top: -2.5px">{{factorMult * prod.cantidad}}</span>&nbsp;{{prod.label}}
+                  </div>
+                </ng-template>
+              </p-column>
+
+              <p-column field="precio" header="Precio Total" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  {{car.precio | number : '1.2-2'}}
+                </ng-template>
+              </p-column>
+
+              <ng-template pTemplate="emptymessage">
+                No existen registros
+              </ng-template>
+
+            </p-dataTable>
+          </p-panel>
+        </div>
+        <!-- Button -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+        <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12" style="text-align: center">
+          <button class="btn btn-primary btn-block" tabindex="15" (click)="insertClientCard()" [disabled]="!flagCaUsFound">Ingresar</button>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+      </tab>
+      <!-- TAB CLOSE-->
+      <tab heading="Cierre" (select)="alertMe2(2)">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+          <h3 style="text-align: center">Cierre de tarjeta de consumo</h3>
+          <hr>
+        </div>
+        <!--LEFT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel header="Datos de Cliente y Tarjeta" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Verificacion de consumo -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label class="cols-sm-2 control-label">Número de tarjeta</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="cardNumberS" (ngModelChange)="onChangeClose($event)" (click)="$event.target.select()" type="text" class="form-control"
+                        name="numeroS" id="numeroS" placeholder="Codigo único de tarjeta" style="z-index: 1;" maxlength="9"
+                        tabindex="16" onkeypress='return event.charCode === 241 || event.charCode >= 48 && event.charCode <= 57 || event.charCode === 95 || event.charCode === 209'>
+                      <span class="input-group-addon" id="addonCnS1"><i class="fa fa-check" aria-hidden="true"></i></span>
+                      <span class="input-group-addon" id="addonCnS2"><i class="fa fa-times" aria-hidden="true"></i></span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Mostrar cliente -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label for="datosCliente">Datos del cliente</label>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="flagCardSFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <ul class="list-group" id="limheight">
+                            <li class="list-group-item">
+                              <p>Nombre:</p>
+                              <div style="text-align: center">
+                                {{searchUserS.nombre}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Cant. Mujeres:</p>
+                              <div style="text-align: center">
+                                <span class="badge">{{searchUserS.cantMujeres}}</span>
+                              </div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Cant. Hombres:</p>
+                              <div style="text-align: center">
+                                <span class="badge">{{searchUserS.cantHombres}}</span>
+                              </div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Eg. Mujeres:</p>
+                              <div style="text-align: center">
+                                {{searchUserS.egresoMujeres}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Eg. Hombres:</p>
+                              <div style="text-align: center">
+                                {{searchUserS.egresoHombres}}</div>
+                            </li>
+
+                            <li class="list-group-item">
+                              <p>Ing. Mujeres:</p>
+                              <div style="text-align: center">
+                                {{searchUserS.ingresoMujeres}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Ing. Hombres:</p>
+                              <div style="text-align: center">
+                                {{searchUserS.ingresoHombres}}</div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="!flagCardSFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <label id="lblNotFound" style="color: #FF4B36; font-size: 14px">{{nfLaelS}}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!--RIGHT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel #pnlTablaConsumo header="Datos del Consumo" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Resumen consumo -->
+                <div class="row">
+                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <label for="tabla" class="control-label">Resúmen Consumo</label>
+                  </div>
+                </div>
+                <!-- Tabla de Resumen consumo -->
+                <div class="row">
+                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <p-dataTable [value]="lstConsumo" [responsive]="true" [(selection)]="selectedPromos" [paginator]="true" [rows]="5" (onRowClick)="onRowSelectTC($event)">
+
+                      <p-column field="cantidad" header="Cantidad" [style]="{'overflow':'visible','width':'15%'}">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                          <span tooltip="{{row.fecha}}" tooltipPlacement="right" appendTo="target" style="position: relative">
+                            {{row[col.field]}}
+                          </span>
+                        </ng-template>
+                      </p-column>
+
+                      <p-column field="descripcion" header="Descripción" [style]="{'overflow':'visible','width':'52.5%'}">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                          <span tooltip="{{row.fecha}}" tooltipPlacement="right" appendTo="target" style="position: relative">
+                            {{row[col.field]}}
+                          </span>
+                        </ng-template>
+                      </p-column>
+
+                      <p-column field="precio_venta" header="Precio U." [style]="{'overflow':'visible','width':'16.25%'}">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                          <span tooltip="{{row.fecha}}" tooltipPlacement="right" appendTo="target" style="position: relative">
+                          {{row[col.field]}}
+                          </span>
+                        </ng-template>
+                      </p-column>
+
+                      <p-column field="total" header="Total" [style]="{'overflow':'visible','width':'16.25%'}">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                          <span tooltip="{{row.fecha}}" tooltipPlacement="right" appendTo="target" style="position: relative">
+                            {{row[col.field]}}
+                          </span>
+                        </ng-template>
+                      </p-column>
+
+                      <p-column field="fecha" header="Fecha" [hidden]="true">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                          <span tooltip="{{row.fecha}}" tooltipPlacement="right" appendTo="target" style="position: relative">
+                            {{row[col.field]}}
+                          </span>
+                        </ng-template>
+                      </p-column>
+
+                      <ng-template pTemplate="emptymessage">
+                        No existen registros
+                      </ng-template>
+
+                    </p-dataTable>
+                  </div>
+                </div>
+                <!-- Total a pagar -->
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                      <br>
+                      <div class="input-group">
+                        <span class="input-group-addon"><label class="control-label" style="font-size: 17px; text-align: center">Total a pagar:</label></span>
+                        <input type="text" [(ngModel)]="totalPagar" currencyMask class="form-control" placeholder="9999" style="font-size: 18px; text-align: right; background-color: white"
+                          readonly>
+                        <!--<span class="input-group-addon" style="font-size: 18px; text-align: right"><i class="fa fa-money" aria-hidden="true"></i></span>-->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!-- Button -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+        <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12" style="text-align: center">
+          <button (click)="openFP();setDefaultValues();" class="btn btn-primary btn-block" id="basic-addonPrint" tabindex="17" [disabled]="flagConfirmFP">Aceptar</button>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+      </tab>
+      <!-- TAB EGRESOS -->
+      <tab heading="Ingreso/Egreso" (select)="alertMe3(3)">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+          <h3 style="text-align: center">Ingreso/Egreso</h3>
+          <hr>
+        </div>
+        <!--LEFT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel #pnlCardE header="Datos de Cliente y Tarjeta" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Verificacion de consumo -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label class="cols-sm-2 control-label">Número de tarjeta</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="cardNumberE" (ngModelChange)="onChangeEgreso($event)" type="text" class="form-control" tabindex="18"
+                        id="numeroT" name="numeroT" placeholder="Codigo único de tarjeta" style="z-index: 1;" onkeypress='return event.charCode === 241 || event.charCode >= 48 && event.charCode <= 57 || event.charCode === 95 || event.charCode === 209'>
+                      <span class="input-group-addon" id="addonCnE1"><i class="fa fa-check" aria-hidden="true"></i></span>
+                      <span class="input-group-addon" id="addonCnE2"><i class="fa fa-times" aria-hidden="true"></i></span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Mostrar cliente -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label for="datosCliente">Datos del cliente</label>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="flagCardEFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <ul class="list-group" id="limheight">
+                            <li class="list-group-item">
+                              <p>Nombre:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.nombre}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Cédula:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.ci}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Consumo Actual:</p>
+                              <div style="text-align: center">
+                                <span class="badge">{{totalPagar | number: '1.2-2'}}</span>
+                              </div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Eg. Mujeres:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.egresoMujeres}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Eg. Hombres:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.egresoHombres}}</div>
+                            </li>
+
+                            <li class="list-group-item">
+                              <p>Ing. Mujeres:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.ingresoMujeres}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Ing. Hombres:</p>
+                              <div style="text-align: center">
+                                {{searchUserE.ingresoHombres}}</div>
+                            </li>
+                            <li class="list-group-item">
+                              <p>Detalle de Consumo:</p>
+                              <div style="text-align: center">
+                                <a mdTooltip="Ver detalle de compras" matTooltipPosition="above">
+                                  <i (click)="showComprasDetail()" class="fa fa-shopping-cart fa-flag fa-lg" aria-hidden="true"></i>
+                                </a></div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="!flagCardEFound">
+                    <div class="input-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <div class="panel panel-default">
+                        <div class="panel-body">
+                          <label id="lblNotFound" style="color: #FF4B36; font-size: 14px">{{nfLaelE}}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!--RIGHT SIDE-->
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <p-panel #pnlCantPersonas header="Numero de Personas Entrantes/Salientes" [style]="{'height':'510px','z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <!-- Abono -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label>Abono</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                      <ng-template #toolTipTemplateAbono>
+                        Total Abonos: $ {{searchUserE.abono}}
+                      </ng-template>
+                      <input type="text" currencyMask [options]="{ prefix: ''}" [(ngModel)]="abono" (ngModelChange)="onChangeAbono($event)" id="inputAbono"
+                        class="form-control" placeholder="0.00" (click)="$event.target.select()" tabindex="25" style="margin: 0px"
+                        [tooltipHtml]="toolTipTemplateAbono" tooltipPlacement="right" tooltipAnimation=false>
+                    </div>
+                  </div>
+                </div>
+                <!-- Cantidad de personas -->
+                <div class="form-group">
+                  <div class="row">
+                    <div class="input-group col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <label class="cols-sm-2 control-label">Cantidad de personas</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-lg-10 col-lg-offset-1 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                      <ul class="list-group">
+                        <li class="list-group-item">
+                          <div class="row" style="text-align: center">
+                            <div class="ui-g-12" style="padding-top: 4%">
+                              <p>Total Mujeres</p>
+                            </div>
+                            <div class="ui-g-12">
+                              <p-selectButton [options]="types" [(ngModel)]="selectedIeMujeres" (onChange)="onChangeEM($event)" [style]="{'margin-top': '-10px'}"
+                                tabindex="19"></p-selectButton>
+                            </div>
+                            <div *ngIf="flagEM" class="ui-g-12" style="padding-right: 10px; padding-left: 10px; padding-top: 15px;">
+                              <ng-template #toolTipTemplateTP2>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                                  <p>Nro. Mujeres:</p>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                                  <p>Precio Mujeres:</p>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                                  <div style="margin-top: -5px;">
+                                    {{selectedCoverME.numMujeres}}
+                                  </div>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                                  <div style="margin-top: -5px;">
+                                    $ {{selectedCoverME.precioMujeres | number : '1.2-2'}}
+                                  </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: 5px">
+                                  <p>Producto/s Mujer:</p>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: -5px;">
+                                  <div style="margin-top: -5px;" *ngFor="let prod of selectedCoverME.productoMujeres;">
+                                    - {{prod.cantidad}} {{prod.label}}
+                                  </div>
+                                  <div style="margin-top: -5px;" *ngIf="selectedCoverME.productoMujeres.length==0">-</div>
+                                </div>
+                                <p style="color: #3E3F3A;">sp</p>
+                              </ng-template>
+                              <select [(ngModel)]="selectedCoverME" (ngModelChange)="onChangeSelectCoverME($event)" id="coverME" class="form-control input-sm"
+                                style="z-index: 1" [tooltipHtml]="toolTipTemplateTP2" tooltipPlacement="left" tooltipAnimation=false
+                                [disabled]="false">
+                                  <option *ngFor="let c of lstCoversM" [ngValue]="c">{{c.nombre}}</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="row" style="text-align: center">
+                            <div class="ui-g-12">
+                              <span class="badge" style="font-size: 16px">{{(searchUserE.cantMujeres - searchUserE.egresoMujeres) + searchUserE.ingresoMujeres}}</span>
+                            </div>
+                            <div class="ui-g-12">
+                              <div class="input-group" style="padding-right: 30%; margin-top: 7px; padding-left: 30%;">
+                                <input [(ngModel)]="cantSalenM" type="text" class="form-control input-sm" name="cantSalenM" id="coverME" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                                  maxlength="2" min="0" [disabled]="true" style="z-index: 1" (click)="$event.target.select()"
+                                  readonly>
+                                <div class="input-group-btn-vertical">
+                                  <button (click)="plusWomanE()" class="btn btn-default" type="button" tabindex="20" style="outline: 0"><i class="fa fa-caret-up"></i></button>
+                                  <button (click)="lessWomanE()" class="btn btn-default" type="button" tabindex="21" style="outline: 0"><i class="fa fa-caret-down"></i></button>
+                                </div>
+                              </div>
+                            </div>
+                            <div *ngIf="flagEM" class="ui-g-12" style="padding-top: 10px;">
+                              <i id="addIcon" (click)="addCoverME()" class="fa fa-plus-square fa-2x" aria-hidden="true"></i>
+                            </div>
+                          </div>
+                          <br>
+                        </li>
+                        <li class="list-group-item">
+                          <div class="row" style="text-align: center">
+                            <div class="ui-g-12" style="padding-top: 4%">
+                              <p>Total Hombres</p>
+                            </div>
+                            <div class="ui-g-12">
+                              <p-selectButton [options]="types" [(ngModel)]="selectedIeHombres" (onChange)="onChangeEH($event)" [style]="{'margin-top': '-10px'}"
+                                tabindex="22"></p-selectButton>
+                            </div>
+                            <div *ngIf="flagEH" class="ui-g-12" style="padding-right: 10px; padding-left: 10px; padding-top: 15px;">
+                              <ng-template #toolTipTemplateTP3>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                                  <p>Nro. Hombres:</p>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: 20px">
+                                  <p>Precio Hombres:</p>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                                  <div style="margin-top: -5px;">
+                                    {{selectedCoverHE.numHombres}}
+                                  </div>
+                                </div>
+                                <div class="ui-g-6 ui-md-6 ui-g-nopad" style="margin-top: -5px">
+                                  <div style="margin-top: -5px;">
+                                    $ {{selectedCoverHE.precioHombres | number : '1.2-2'}}
+                                  </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: 5px">
+                                  <p>Producto/s Hombre:</p>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-g-nopad" style="margin-top: -5px">
+                                  <div style="margin-top: -5px;" *ngFor="let prod of selectedCoverHE.productoHombres;">
+                                    - {{prod.cantidad}} {{prod.label}}
+                                  </div>
+                                  <div style="margin-top: -5px;" *ngIf="selectedCoverHE.productoHombres.length==0;else other">-</div>
+                                </div>
+                                <p style="color: #3E3F3A;">sp</p>
+                              </ng-template>
+                              <select [(ngModel)]="selectedCoverHE" (ngModelChange)="onChangeSelectCoverHE($event)" id="coverHE" class="form-control input-sm"
+                                style="z-index: 1" [disabled]="false" [tooltipHtml]="toolTipTemplateTP3" tooltipPlacement="left">
+                                <option *ngFor="let c of lstCoversH" [ngValue]="c">{{c.nombre}}</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="row" style="text-align: center">
+                            <div class="ui-g-12">
+                              <span class="badge" style="font-size: 16px">{{(searchUserE.cantHombres - searchUserE.egresoHombres) + searchUserE.ingresoHombres}}</span>
+                            </div>
+                            <div class="ui-g-12">
+                              <div class="input-group" style="padding-right: 30%; margin-top: 7px; padding-left: 30%;">
+                                <input [(ngModel)]="cantSalenH" type="text" class="form-control input-sm" name="cantSalenH" id="coverHE" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                                  maxlength="2" min="0" [disabled]="true" style="z-index: 1" (click)="$event.target.select()">
+                                <div class="input-group-btn-vertical">
+                                  <button (click)="plusManE()" class="btn btn-default" type="button" tabindex="23" style="outline: 0"><i class="fa fa-caret-up"></i></button>
+                                  <button (click)="lessManE()" class="btn btn-default" type="button" tabindex="24" style="outline: 0"><i class="fa fa-caret-down"></i></button>
+                                </div>
+                              </div>
+                            </div>
+                            <div *ngIf="flagEH" class="ui-g-12" style="padding-top: 10px;">
+                              <i id="addIcon" (click)="addCoverHE()" class="fa fa-plus-square fa-2x" aria-hidden="true"></i>
+                            </div>
+                          </div>
+                          <br>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <!-- BOTTOM SIDE-->
+        <div *ngIf="flagEM || flagEH" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <br>
+          <p-panel #pnlPromos header="Resúmen ingreso de personas" [style]="{'z-index':'1'}">
+
+            <!-- Total Covers -->
+            <div class="panel-body" style="padding-left: 0; padding-right: 0;">
+              <div class="form-group" style="margin: 0px;">
+                <div class="input-group col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+                  <div class="ui-g-4 ui-md-4 ui-g-nopad" style="text-align: right;">
+                    <label style="padding-top: 12.5px; padding-right: 10px;">Total Covers:</label>
+                  </div>
+                  <div class="ui-g-8 ui-md-8 ui-g-nopad">
+                    <div class="input-group">
+                      <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                      <input [(ngModel)]="totalCoversE" type="text" currencyMask type="text" [options]="{ prefix: ''}" id="limCons" name="limCons"
+                        class="form-control" placeholder="0.00" (click)="$event.target.select()" style="margin: 0px" disabled>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p-dataTable [value]="lstResumenOpenE" [responsive]="true" [(selection)]="selectedPromos" [paginator]="true" [rows]="5">
+
+              <p-column [style]="{'width':'5%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  <button pButton type="button" (click)="deleteRowCoverE(index)" icon="fa-close" class="ui-button-danger"></button>
+                </ng-template>
+              </p-column>
+
+              <p-column field="nombre" header="Nombre cover" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'25%'}">
+              </p-column>
+
+              <p-column field="cantidad" header="Cant. personas" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+              </p-column>
+
+              <p-column field="genero" header="Género" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+              </p-column>
+
+              <p-column field="producto" header="Productos" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'25%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  <div *ngFor="let prod of car.producto;">
+                    <span class="badge" style="margin-top: -2.5px">{{prod.cantidad}}</span>&nbsp;{{prod.label}}
+                  </div>
+                </ng-template>
+              </p-column>
+
+              <p-column field="precio" header="Precio Total" [editable]="false" [sortable]="true" [filter]="true" [style]="{'width':'15%'}">
+                <ng-template let-car="rowData" let-index="rowIndex" pTemplate>
+                  {{car.precio | number : '1.2-2'}}
+                </ng-template>
+              </p-column>
+
+              <ng-template pTemplate="emptymessage">
+                No existen registros
+              </ng-template>
+
+            </p-dataTable>
+          </p-panel>
+        </div>
+        <!-- Button -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+        <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12" style="text-align: center">
+          <button (click)="confirmarEgreso()" class="btn btn-primary btn-block" id="basic-addonPrint" tabindex="26" [disabled]="!flagCardEFound">Confirmar</button>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+      </tab>
+      <!-- TAB TARJETAS -->
+      <tab heading="Tarjetas" (select)="alertMe4(4)">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+          <h3 style="text-align: center">Gestión de tarjetas</h3>
+          <hr>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <p-panel header="Ingreso Rápido" [style]="{'z-index':'1'}">
+            <div class="panel panel-default" style="border: transparent">
+              <div class="panel-body">
+                <div class="form-group">
+                  <div class="row">
+                    <!-- Numero de Tarjeta -->
+                    <div class="col-lg-5 col-lg-offset-1 col-md-6 col-sm-6 col-xs-6">
+                      <label>Número de tarjeta</label>
+                      <div class="panel-body" style="padding-left: 0;">
+                        <div class="input-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                          <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+                          <input [(ngModel)]="cardNumberG" (ngModelChange)="onChangeG($event)" (click)="$event.target.select()" type="text" class="form-control"
+                            tabindex="27" name="numeroTar" id="numeroTar" placeholder="Codigo único de tarjeta" style="z-index: 1;"
+                            onkeypress='return event.charCode === 241 || event.charCode >= 48 && event.charCode <= 57 || event.charCode === 95 || event.charCode === 209'>
+                          <span class="input-group-addon" id="addonCnT1"><i class="fa fa-check" aria-hidden="true"></i></span>
+                          <span class="input-group-addon" id="addonCnT2"><i class="fa fa-times" aria-hidden="true"></i></span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Limite de Consumo  -->
+                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                      <label>Límite de Consumo</label>
+                      <div class="panel-body" style="padding-left: 0;">
+                        <div class="input-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                          <span class="input-group-addon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                          <input currencyMask type="text" class="form-control" [(ngModel)]="limiteConsumo" [options]="{ prefix: '$ '}" id="inputAbono"
+                            name="inputAbono" placeholder="0.00" style="z-index: 1;" tabindex="28" (click)="$event.target.select()">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-panel>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <br>
+          <ng2-smart-table id="dtT" [settings]="settingsT" [source]="sourceT" (create)="showDialogT = !showDialogT;setCursorAddT()"
+            (edit)="showDialogTU = !showDialogTU;onUpdateT($event);setCursorUpdateT()" (delete)="onDeleteT($event)">
+          </ng2-smart-table>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+      </tab>
+      <!-- REIMPRESION -->
+      <tab heading="Reimpresión">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <hr>
+          <h3 style="text-align: center">Reimpresión de Tickets</h3>
+          <hr>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <br>
+          <ng2-smart-table id="dtR" [settings]="settingsR" [source]="sourceR" (edit)="showDialogR = !showDialogR;onUpdateR($event);setCursorUpdateR()"
+            (delete)="onDeleteR($event)">
+          </ng2-smart-table>
+        </div>
+      </tab>
+    </tabset>
+  </div>
+</div>
+
+<!-- ADD CLIENT -->
+<p-dialog [(visible)]="showDialog" modal="modal" width="550" [responsive]="true">
+  <p-header>
+    Registrar Cliente
+  </p-header>
+  <br>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-6">
+      <label>Cedula*:</label>
+      <input type="text" [(ngModel)]="cedula" id="ciA" name="ciA" (ngModelChange)="onChangeCI()" placeholder="Cedula del cliente"
+        class="form-control input-sm" maxlength="10" onkeypress='return event.charCode >= 48 && event.charCode <= 57' tooltip="Solo se permiten NUMEROS."
+        tooltipPlacement="bottom">
+    </div>
+    <div class="ui-g-6">
+      <label>Telefono:</label>
+      <input type="text" [(ngModel)]="telefono" id="telefono" name="telefono" placeholder="Telefono del cliente" class="form-control input-sm"
+        maxlength="10" onkeypress='return event.charCode >= 48 && event.charCode <= 57' tooltip="Solo se permiten NUMEROS."
+        tooltipPlacement="bottom">
+    </div>
+    <div class="ui-g-6">
+      <label>Nombre*:</label>
+      <input type="text" [(ngModel)]="nombre" id="nombre" name="nombre" placeholder="Nombre del cliente" class="form-control input-sm"
+        onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+        event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+        tooltip="Solo se permiten LETRAS." tooltipPlacement="bottom" (ngModelChange)="onChangeNombre($event)">
+    </div>
+    <div class="ui-g-6">
+      <label>Apellido*:</label>
+      <input type="text" [(ngModel)]="apellido" id="apellido" name="apellido" placeholder="Apellido del cliente" class="form-control input-sm"
+        onkeypress='return event.charCode >= 97 && event.charCode <= 122 || 
+        event.charCode === 241 || event.charCode === 32 || event.charCode === 209 || event.charCode >= 65 && event.charCode <= 90'
+        tooltip="Solo se permiten LETRAS." tooltipPlacement="bottom" (ngModelChange)="onChangeApellido($event)">
+    </div>
+    <div class="ui-g-6">
+      <label>Tipo Cliente*:</label>
+      <select [(ngModel)]="selected_tipo_cliente" class="form-control input-sm">
+        <option *ngFor="let c of tipo_clientes" [ngValue]="c">{{c.nombre}}</option>
+    </select>
+    </div>
+    <div class="ui-g-6">
+      <label>E-mail:</label>
+      <input type="text" [(ngModel)]="correo" (ngModelChange)="onChangeEmail($event)" id="correo" name="correo" placeholder="Correo del cliente"
+        class="form-control input-sm">
+    </div>
+    <div class="ui-g-6">
+      <label>Fecha de nacimiento*:</label>
+      <p-calendar [(ngModel)]="fecha_nacimiento" [locale]="es" dateFormat="dd/mm/yy" [showIcon]="true" [monthNavigator]="true"
+        [yearNavigator]="true" yearRange="1950:2030" dataType="string" [readonlyInput]="true">
+      </p-calendar>
+    </div>
+    <div class="ui-g-6">
+      <label>Sexo*:</label><br>
+      <md-radio-group [(ngModel)]="sexo">
+        <md-radio-button class="example-radio-button" *ngFor="let sex of sexs" [value]="sex.pseudo" [color]="color">{{sex.name}}
+        </md-radio-button>
+      </md-radio-group>
+    </div>
+  </div>
+  <hr>
+  <div class="ui-g-12" style="text-align: center">
+    <button type="button" style="font-size: 11px" (click)="saveClient()" class="btn btn-primary" [disabled]="!validCI">Registrar</button>
+    <button type="button" style="font-size: 11px" (click)="showDialog=false" class="btn btn-default">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!-- PRINT -->
+<p-dialog [(visible)]="showDialogPrint" modal="modal" width="630" [responsive]="true">
+  <br>
+  <h3 style="text-align: center">Imprimiendo...</h3>
+  <div class="progress">
+    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0"
+      aria-valuemax="100" style="width:100%">
+      100%
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Add T -->
+<p-dialog [(visible)]="showDialogT" modal="modal" width="500" [responsive]="true">
+  <p-header>
+    Registrar Tarjeta
+  </p-header>
+
+  <div class="ui-g ui-fluid">
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <div class="panel-body" style="padding-top: 0; padding-bottom: 0">
+        <label>Numero de tarjeta*:</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+          <input [(ngModel)]="cardNumberGT" (ngModelChange)="onChangeAddT($event)" (click)="$event.target.select()" type="text" class="form-control"
+            name="numeroGT" id="numeroGT" placeholder="Codigo único de tarjeta" maxlength="9">
+          <span class="input-group-addon" id="basic-addon7"><i class="fa fa-check" aria-hidden="true"></i></span>
+          <span class="input-group-addon" id="basic-addon8"><i class="fa fa-times" aria-hidden="true"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6" style="padding-top: 0;">
+      <div class="panel-body" style="padding-top: 1; padding-bottom: 0">
+        <label>Tipo*:</label>
+        <p-dropdown [options]="tipoTarjetas" [(ngModel)]="selectedTipoTarjeta" [style]="{'width':'100%'}" name="tipoTarjetas" id="tipoTarjetas"
+          [inputId]="tipoTarjetas" (onChange)="changeTC()">
+          <ng-template let-car pTemplate="item">
+            <p>{{car.label}}</p>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6" style="padding-top: 0;">
+      <div class="panel-body" style="padding-top: 1; padding-bottom: 0">
+        <label>Cliente:</label>
+        <p-dropdown [options]="lstAddCardCI" [(ngModel)]="selectedClientGP" [style]="{'width':'100%'}" scrollHeight="200px" filter="filter"
+          filterBy="label,value.cedula" id="lstClientes" name="lstClientes" [disabled]="flagTC" (onChange)="changeTC1()">
+          <ng-template let-car pTemplate="item">
+            <p>{{car.label}}--{{car.value.cedula}}</p>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+        <div class="panel-body" style="padding-top: 0; padding-left: 8px;">
+          <label>Limite Consumo*:</label>
+          <input currencyMask type="text" [(ngModel)]="limiteConsumo" id="limite" name="limite" class="form-control input-sm" placeholder="0.00">
+        </div>
+      </div>
+      <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+        <div class="panel-body" style="padding-top: 0; padding-right: 8px;">
+          <label>Descripción:</label>
+          <textarea [(ngModel)]="descTarjeta" (ngModelChange)="onChangeDescAdd($event)" style="width: 100%; height: 46px" placeholder="Descripción del cliente"
+            class="form-control input-sm" (click)="$event.target.select()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12 ui-g-nopad" style="text-align: center">
+    <button class="btn btn-primary" style="font-size: 11px" (click)="onAddTSubmit()" [disabled]="!flagCN">Registrar</button>
+    <button class="btn btn-default" style="font-size: 11px" (click)="showDialogT = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!-- Update T -->
+<p-dialog [(visible)]="showDialogTU" modal="modal" width="500" [responsive]="true">
+  <p-header>
+    Actualizar Tarjeta
+  </p-header>
+
+  <div class="ui-g ui-fluid">
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <div class="panel-body" style="padding-top: 0; padding-bottom: 0">
+        <label>Numero de tarjeta*:</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-credit-card-alt" aria-hidden="true"></i></span>
+          <input [(ngModel)]="updateTarjeta.numero" (ngModelChange)="onChangeAddTU($event)" (click)="$event.target.select()" type="text"
+            class="form-control" name="numeroGTU" id="numeroGTU" placeholder="Codigo único de tarjeta" maxlength="9" readonly>
+          <span class="input-group-addon" id="basic-addon9"><i class="fa fa-check" aria-hidden="true"></i></span>
+          <span class="input-group-addon" id="basic-addon10"><i class="fa fa-times" aria-hidden="true"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6" style="padding-top: 0;">
+      <div class="panel-body" style="padding-top: 1; padding-bottom: 0">
+        <label>Tipo*:</label>
+        <p-dropdown [options]="tipoTarjetas" [(ngModel)]="updateTarjeta.tipo" [style]="{'width':'100%'}" name="tipoTarjetasU" id="tipoTarjetasU"
+          [inputId]="tipoTarjetas" (onChange)="changeTCU()">
+          <ng-template let-car pTemplate="item">
+            <p>{{car.label}}</p>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6" style="padding-top: 0;">
+      <div class="panel-body" style="padding-top: 1; padding-bottom: 0">
+        <label>Cliente:</label>
+        <p-dropdown [options]="lstAddCardCI1" [(ngModel)]="selectedClientGP" [style]="{'width':'100%'}" scrollHeight="200px" filter="filter"
+          filterBy="label,value.cedula" id="lstClientesU" name="lstClientesU" [disabled]="flagTCU">
+          <ng-template let-car pTemplate="item">
+            <p>{{car.label}}--{{car.value.cedula}}</p>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+        <div class="panel-body" style="padding-top: 0; padding-left: 8px;">
+          <label>Limite Consumo*:</label>
+          <input currencyMask type="text" [(ngModel)]="updateTarjeta.limite" id="limiteU" name="limiteU" class="form-control input-sm"
+            placeholder="0.00">
+        </div>
+      </div>
+      <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+        <div class="panel-body" style="padding-top: 0; padding-right: 8px;">
+          <label>Descripción:</label>
+          <textarea [(ngModel)]="updateTarjeta.descripcion" (ngModelChange)="onChangeDescUpdate($event)" style="width: 100%; height: 46px"
+            placeholder="Descripción del cliente" class="form-control input-sm" (click)="$event.target.select()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12 ui-g-nopad" style="text-align: center">
+    <button class="btn btn-primary" style="font-size: 11px" (click)="onUpdateTSubmit()">Actualizar</button>
+    <button class="btn btn-default" style="font-size: 11px" (click)="showDialogTU = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!--Progress Bar-->
+<p-dialog [(visible)]="showDialogPB" modal="modal" width="400" [responsive]="true">
+  <p-header>
+    Eliminado Registros...
+  </p-header>
+  <p-progressBar [value]="value"></p-progressBar>
+</p-dialog>
+
+<!--Forma de Pago-->
+<p-dialog [(visible)]="showDialogFP" modal="modal" width="600" [responsive]="true">
+  <p-header>
+    Confirmación Datos Venta
+  </p-header>
+  <div class="ui-g ui-fluid">
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12" style="padding-top: 0px">
+      <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12 ui-g-nopad">
+        <label>RUC/CI:</label>
+      </div>
+      <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3 ui-g-nopad">
+        <p-inputSwitch [(ngModel)]="selectedRucFactura" (onChange)="insertRuc($event)" onLabel="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Si&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+          offLabel="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" [style]="{'margin-top':'12px'}"></p-inputSwitch>
+      </div>
+      <div class="panel-body">
+        <div class="ui-g-9 ui-xl-9 ui-lg-9 ui-md-9 ui-sm-9 ui-g-nopad" style="padding-left: 6px;">
+          <div class="input-group" style="width: 106%">
+            <span class="input-group-addon"><i class="fa fa-credit-card-alt "></i></span>
+            <input [(ngModel)]="rucFactura" type="text" placeholder="Consumidor Final" [disabled]="flagInsertRuc" (ngModelChange)="checkCiRuc()"
+              id="inputCiRuc" class="form-control">
+            <span class="input-group-addon" id="addonRUC1"><i class="fa fa-check" aria-hidden="true"></i></span>
+            <span class="input-group-addon" id="addonRUC2"><i class="fa fa-times" aria-hidden="true"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3" style="padding-top: 0px">
+      <label>Teléfono:</label>
+      <input type="text" [(ngModel)]="telefonoS" id="telefonoS" placeholder="Teléfono" class="form-control" maxlength="10" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+        tooltip="Solo se permiten NUMEROS." tooltipPlacement="bottom" (click)="$event.target.select()" [disabled]="!flagFP">
+    </div>
+    <div class="ui-g-9 ui-xl-9 ui-lg-9 ui-md-9 ui-sm-9" style="padding-left: 11px; padding-top: 0px">
+      <label>Nombre:</label><br>
+      <input type="text" [(ngModel)]="nombreS" id="nombreS" placeholder="Nombre cliente" class="form-control" maxlength="10" onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+        tooltip="Solo se permiten NUMEROS." tooltipPlacement="bottom" (click)="$event.target.select()" [disabled]="!flagFP">
+    </div>
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <label>Dirección:</label><br>
+      <textarea [(ngModel)]="direccionS" id="direccionS" style="width: 100%;height: 61%" placeholder="Dirección del cliente" class="form-control input-sm"
+        (click)="$event.target.select()" [disabled]="!flagFP"></textarea>
+    </div>
+
+    <div class="panel panel-default" style="width: 100%;margin-bottom: 0px;" id="pnlFp">
+      <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3 ui-g-nopad">
+          <label>Formas de Pago*:</label>
+        </div>
+        <div class="ui-g-9 ui-xl-9 ui-lg-9 ui-md-9 ui-sm-9 ui-g-nopad">
+          <div class="ui-state-error ui-message ui-corner-all" *ngIf="flagErrorFP">
+            <p style="color: white;font-size: 12px"><i class="fa fa-exclamation-circle"></i> &nbsp;El campo <i>{{campoFP}}</i>, puede ser máximo: <i>{{maximoFP | number : '1.2-2'}}</i></p>
+          </div>
+          <div *ngIf="!flagErrorFP">
+            <p style="color: white;font-size: 12px">Espacio</p>
+          </div>
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3" style="margin-top: 13px">
+          <label>Efectivo:</label>
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3">
+          <input currencyMask type="text" [(ngModel)]="fpEfectivo" id="fpEfectivo" name="fpEfectivo" placeholder="0.00" class="form-control"
+            (ngModelChange)="onChangeFPE($event)" (click)="$event.target.select()" [disabled]="flagConsCero" max="57">
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3" style="margin-top: 13px">
+          <label>Tarjeta de Crédito:</label>
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3">
+          <input currencyMask type="text" [(ngModel)]="fpTarjeta" id="fpTarjeta" name="fpTarjeta" placeholder="0.00" class="form-control"
+            (ngModelChange)="onChangeFPT($event)" (click)="$event.target.select()" [disabled]="flagConsCero">
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3" style="margin-top: 13px">
+          <label>Crédito Directo:</label>
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3">
+          <input currencyMask type="text" [(ngModel)]="fpPorCobrar" id="fpPorCobrar" name="fpPorCobrar" placeholder="0.00" class="form-control"
+            (ngModelChange)="onChangeFPC($event)" (click)="$event.target.select()" [disabled]="flagConsCero">
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3" style="margin-top: 13px">
+          <label>Cheque:</label>
+        </div>
+        <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3">
+          <input currencyMask type="text" [(ngModel)]="fpCheque" id="fpCheque" name="fpCheque" placeholder="0.00" class="form-control"
+            (ngModelChange)="onChangeFPCH($event)" (click)="$event.target.select()" [disabled]="flagConsCero">
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <div class="ui-g-3 ui-xl-3 ui-lg-3 ui-md-3 ui-sm-3 ui-g-nopad" style="text-align: center">
+        <div [ngClass]="colorConsCero">
+          <p style="color: white; font-size: 12px; padding-top: 9px">
+            <i class="fa fa-exclamation-circle"></i>&nbsp;{{textoConsumo}}
+          </p>
+        </div>
+      </div>
+      <div class="ui-g-9 ui-xl-9 ui-lg-9 ui-md-9 ui-sm-9 ui-g-nopad" style="padding-left: 6px; padding-right: 30px">
+        <div class="input-group" style="width: 106%">
+          <span class="input-group-addon"><label class="control-label" style="font-size: 17px; text-align: center">Total a pagar:</label></span>
+          <input type="text" [(ngModel)]="totalPagar" currencyMask class="form-control" placeholder="9999" style="font-size: 18px; text-align: right; color: #1F5DD1"
+            [disabled]="true">
+        </div>
+      </div>
+    </div>
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <hr>
+    </div>
+  </div>
+  <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12 ui-g-nopad" style="text-align: center">
+    <button class="btn btn-primary" style="font-size: 11px" (click)="confirmarSalida()" [disabled]="!flagCheckVenta">Confirmar</button>
+    <button class="btn btn-default" style="font-size: 11px" (click)="showDialogFP = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!-- Show Compras-->
+<p-dialog [(visible)]="showCompras" modal="modal" width="800" [responsive]="true">
+  <p-header>
+    Detalle Compras
+  </p-header>
+
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-12">
+      <p><strong>Fecha activación de tarjeta:</strong>&nbsp;&nbsp;{{showDateApertura}}</p>
+      <p><strong>Hora activación de tarjeta:</strong>&nbsp;&nbsp;&nbsp;&nbsp;{{showHourApertura}}</p>
+      <p-dataTable [value]="lstComprasCliente" [responsive]="true" [(selection)]="selectedPromos" [paginator]="true" [rows]="5"
+        (onRowClick)="onRowSelectTC($event)">
+        <p-column field="fecha" header="Fecha" [style]="{'overflow':'visible','width':'15%'}"></p-column>
+        <p-column field="hora" header="Hora" [style]="{'overflow':'visible','width':'15%'}"></p-column>
+        <p-column field="cantidad" header="Unidades" [style]="{'overflcolorow':'visible','width':'15%'}">
+          <ng-template let-car="rowData" pTemplate type="body">
+            <div class="ui-g-8">
+              <!--<input type="number" [(ngModel)]="car.cantidad" (ngModelChange)="changeCantidad($event)" [ngStyle]="{'color':cantColor, 'text-align': 'center'}"
+                min="0" max="car.cantidadOld">-->
+              <p-spinner [(ngModel)]="car.cantidad" [ngClass]="{'ui-fluid ui-inputtext': false }" (onChange)="changeCantidad($event)" size="7"
+                [min]="0" [max]="car.cantidadOld"></p-spinner>
+            </div>
+            <div class="ui-g-4" style="padding-top: 10px">
+              <span class="badge" style="font-size: 13px">{{car.cantidadOld}}</span>
+            </div>
+          </ng-template>
+        </p-column>
+        <p-column field="descripcion" header="Descripción Producto" [style]="{'overflow':'visible','width':'25%'}"></p-column>
+        <p-column field="precio_venta" header="P. Unitario" [style]="{'overflow':'visible','width':'15%'}"></p-column>
+        <p-column field="total" header="Total" [style]="{'overflow':'visible','width':'15%'}"></p-column>
+      </p-dataTable>
+    </div>
+  </div>
+  <div class="ui-g-12" style="text-align: center">
+    <hr>
+    <button class="btn btn-primary" style="font-size: 11px" (click)="updateComprasDetail()">Actualizar</button>
+    <button class="btn btn-default" style="font-size: 11px" (click)="showCompras = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!--Advertencia-->
+<p-dialog [(visible)]="displayOptions" modal="modal" width="580" [showHeader]="false" [responsive]="true">
+  <h3 style="text-align: center">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> &nbsp;Atención
+  </h3>
+  <hr>
+  <p><strong>Existe un turno abierto!</strong></p>
+  <p>Estimad@ {{username}} cerraste tu sesión sin haber cerrado tu turno, por lo que es necesario continuar con dicho turno
+    o iniciar uno nuevo.</p>
+  <hr>
+  <div style="text-align: center">
+    <button type="button" pButton (click)="displayOptions=false;" style="width: 40%" label="Continuar con turno"></button>
+    <button type="button" pButton (click)="displayOptions=false;displayCloseCaja=true;" style="width: 40%" label="Empezar un nuevo turno"></button>
+  </div>
+</p-dialog>
+
+<!--Abrir-->
+<p-dialog [(visible)]="displayOpenCaja" modal="modal" width="550" [showHeader]="false" [responsive]="true">
+  <h3 style="text-align: center">
+    Apertura de Turno
+  </h3>
+  <hr>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <p><strong>¿Cuánto dinero existe en caja?</strong></p>
+    </div>
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <input [(ngModel)]="montoO" currencyMask (click)="$event.target.select()" type="text" class="form-control">
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button type="button" pButton icon="fa-check" (click)="displayOpenCaja=false;" label="Abrir Turno" style="width: 25%"></button>
+    <button type="button" pButton icon="fa-close" (click)="displayOpenCaja=false;displayOptions=true;" label="Regresar" style="width: 25%"></button>
+  </div>
+</p-dialog>
+
+<!--Cerrar-->
+<p-dialog [(visible)]="displayCloseCaja" modal="modal" width="550" [showHeader]="false" [responsive]="true">
+  <h3 style="text-align: center">
+    Cierre de Turno
+  </h3>
+  <hr>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p><strong>Efectivo esperado en caja</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="montoO" currencyMask (click)="$event.target.select()" type="text" class="form-control" readonly>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p><strong>Efectivo existente en caja</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="montoO" currencyMask (click)="$event.target.select()" type="text" class="form-control">
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p><strong>Diferencia</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="montoO" currencyMask (click)="$event.target.select()" type="text" class="form-control" readonly>
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button type="button" pButton icon="fa-check" (click)="displayCloseCaja=false;displayOpenCaja=true;" label="Cerrar Turno"
+      style="width: 25%"></button>
+    <button type="button" pButton icon="fa-close" (click)="displayCloseCaja=false;displayOptions=true;" label="Regresar" style="width: 25%"></button>
+  </div>
+</p-dialog>
+
+<!--Abrir No Login-->
+<p-dialog [(visible)]="displayOpenCajaN" modal="modal" width="450" [responsive]="true">
+  <p-header>
+    Apertura de Turno No Login
+  </p-header>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-12 ui-xl-12 ui-lg-12 ui-md-12 ui-sm-12">
+      <p style="text-align: center"><strong>¿Cuánto dinero existe en caja?</strong></p>
+    </div>
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1 col-xs-12">
+      <input [(ngModel)]="montoO" currencyMask (click)="$event.target.select()" id="montoO" name="montoO" type="text" class="form-control">
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button class="btn btn-primary ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12 okCancel btn-lg" (click)="openCaja()">Abrir Turno</button>
+    <button class="btn btn-default ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12 okCancel btn-lg" (click)="displayOpenCajaN = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!--Cerrar No Login-->
+<p-dialog [(visible)]="displayCloseCajaN" modal="modal" width="550" [responsive]="true">
+  <p-header>
+    Cierre de Turno No Login
+  </p-header><br>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Efectivo esperado en caja:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="efectivoEsp" currencyMask (click)="$event.target.select()" type="text" class="form-control" [disabled]="true">
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Efectivo existente en caja:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="efectivoExis" (ngModelChange)="onChangeExis()" id="efectivoExis1" currencyMask (click)="$event.target.select()"
+        type="text" class="form-control">
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Diferencia:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input currencyMask (click)="$event.target.select()" type="text" class="form-control" value={{efectivoExis-efectivoEsp}}
+        [disabled]="true">
+    </div>
+    <div class="col-lg-6 col-lg-offset-6 col-md-6 col-md-offset-6 col-sm-6 col-sm-offset-6 col-xs-6 col-xs-offset-6">
+      <div class="ui-message ui-messages-warn ui-corner-all" *ngIf="!flagShowAlert">
+        <i class="fa fa-exclamation-circle"></i>&nbsp;Advertencia: Los valores no coinciden.
+      </div>
+      <div class="ui-message ui-messages-success ui-corner-all" *ngIf="flagShowAlert">
+        <i class="fa fa-check"></i>&nbsp;Excelente: Todo en orden.
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button class="btn btn-primary ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12 okCancel btn-lg" (click)="closeCaja()">Cerrar Turno</button>
+    <button class="btn btn-default ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12 okCancel btn-lg" (click)="displayCloseCajaN = false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!--Cerrar Logout-->
+<p-dialog [(visible)]="displayCloseCajaL" modal="modal" width="550" [responsive]="true">
+  <p-header>
+    Cierre de Turno
+  </p-header><br>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Efectivo esperado en caja:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="efectivoEsp" currencyMask (click)="$event.target.select()" type="text" class="form-control" [disabled]="true">
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Efectivo existente en caja:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input [(ngModel)]="efectivoExis" (ngModelChange)="onChangeExis()" currencyMask (click)="$event.target.select()" type="text"
+        class="form-control">
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <p style="padding-top: 13px"><strong>Diferencia:</strong></p>
+    </div>
+    <div class="ui-g-6 ui-xl-6 ui-lg-6 ui-md-6 ui-sm-6">
+      <input currencyMask (click)="$event.target.select()" type="text" class="form-control" value={{efectivoExis-efectivoEsp}}
+        [disabled]="true">
+    </div>
+    <div class="col-lg-6 col-lg-offset-6">
+      <div class="ui-message ui-messages-warn ui-corner-all" *ngIf="!flagShowAlert">
+        <i class="fa fa-exclamation-circle"></i>&nbsp;Advertencia: Los valores no coinciden.
+      </div>
+      <div class="ui-message ui-messages-success ui-corner-all" *ngIf="flagShowAlert">
+        <i class="fa fa-check"></i>&nbsp;Excelente: Todo en orden.
+      </div>
+    </div>
+
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button class="btn btn-primary" style="font-size: 11px; width: 25%;" (click)="closeCajaL()">Cerrar y salir</button>
+    <button class="btn btn-default" style="font-size: 11px; width: 25%;" (click)="logOut()">Salir sin Cerrar</button>
+  </div>
+</p-dialog>
+
+<!-- Intercambio de dinero-->
+<p-dialog [(visible)]="showDialogInOut" modal="modal" width="550" [responsive]="true">
+  <p-header>
+    Transferencia de efectivo
+  </p-header><br>
+  <div class="ui-g ui-fluid">
+    <div class="ui-xl-4 ui-lg-4 ui-md-4 ui-sm-12">
+      <p style="padding-top: 13px"><strong>Efectivo existente:</strong></p>
+    </div>
+    <div class="ui-xl-8 ui-lg-8 ui-md-8 ui-sm-12">
+      <input [(ngModel)]="totalEfectivoCaja" id="totalEfectivoCaja" currencyMask (click)="$event.target.select()" type="text" class="form-control"
+        [disabled]="true">
+    </div>
+
+    <div class="ui-xl-4 ui-lg-4 ui-md-4 ui-sm-12">
+      <p style="padding-top: 13px"><strong>Monto a transferir:</strong></p>
+    </div>
+    <div class="ui-xl-8 ui-lg-8 ui-md-8 ui-sm-12">
+      <input [(ngModel)]="montoTrans" (ngModelChange)="onChangeMontoTrans()" id="montoTrans" currencyMask (click)="$event.target.select()"
+        type="text" class="form-control">
+    </div>
+    <div class="ui-xl-4 ui-lg-4 ui-md-4 ui-sm-12">
+      <p style="padding-top: 13px"><strong>Caja destino:</strong></p>
+    </div>
+    <div class="ui-xl-8 ui-lg-8 ui-md-8 ui-sm-12">
+      <select class="form-control" [(ngModel)]="selectedCaja" tabindex="2">
+        <option *ngFor="let c of lstCajas" [ngValue]="c">{{c.nombres}} {{c.apellidos}} -- {{c.cedula}}</option>
+      </select>
+    </div>
+  </div>
+  <hr>
+  <div style="text-align: center">
+    <button class="btn btn-primary ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12" style="font-size: 11px" (click)="doExchange()">Aceptar</button>
+    <button class="btn btn-default ui-xl-3 ui-lg-3 ui-md-3 ui-sm-12" style="font-size: 11px" (click)="showDialogInOut=false">Cancelar</button>
+  </div>
+</p-dialog>
+
+<!--Bloquear paneles-->
+<p-blockUI [target]="pnlTarjeta" [blocked]="!flagUserFound">
+  <i class="fa fa-lock fa-5x" style="position:absolute;top:40%;left:46%"></i>
+</p-blockUI>
+
+<p-blockUI [target]="pnlPromos" [blocked]="!flagUserFound">
+  <i class="fa fa-lock fa-5x" style="position:absolute;top:40%;left:48%"></i>
+</p-blockUI>
+
+<p-blockUI [target]="pnlTablaConsumo" [blocked]="!flagCardSFound">
+  <i class="fa fa-lock fa-5x" style="position:absolute;top:40%;left:46%"></i>
+</p-blockUI>
+
+<p-blockUI [target]="pnlCantPersonas" [blocked]="!flagCardEFound">
+  <i class="fa fa-lock fa-5x" style="position:absolute;top:40%;left:46%"></i>
+</p-blockUI>
+
+<p-blockUI [target]="pnlCedula" [blocked]="blockCaja">
+  <i class="fa fa-lock fa-5x" style="position:absolute;top:40%;left:46%"></i>
+</p-blockUI>
+
+<form>
+  <input type="button" value="Print Page" (click)="printOrdenSalida()">
+  <input type="button" value="Try getdate" (click)="doDate()">
+</form>
+
+<!-- Imprimir Factura -->
+<div id="print-section">
+</div>
+
+<script language="VBScript">
+  // THIS VB SCRIP REMOVES THE PRINT DIALOG BOX AND PRINTS TO YOUR DEFAULT PRINTER
+  Sub window_onunload()
+  On Error Resume Next
+  Set WB = nothing
+  On Error Goto 0
+  End Sub
+  
+  Sub Print()
+  OLECMDID_PRINT = 6
+  OLECMDEXECOPT_DONTPROMPTUSER = 2
+  OLECMDEXECOPT_PROMPTUSER = 1
+
+
+  On Error Resume Next
+  
+  If DA Then
+  call WB.ExecWB(OLECMDID_PRINT, OLECMDEXECOPT_DONTPROMPTUSER, 1)
+
+  Else
+  call WB.IOleCommandTarget.Exec(OLECMDID_PRINT, OLECMDEXECOPT_DONTPROMPTUSER, "", "", "")
+
+  End If
+  
+  If Err.Number <> 0 Then
+  If DA Then 
+  Alert("Nothing Printed :" & err.number & " : " & err.description)
+  Else
+  HandleError()
+  End if
+  End If
+  On Error Goto 0
+  End Sub
+  
+  If DA Then
+  wbvers = "8856F961-340A-11D0-A96B-00C04FD705A2"
+  Else
+  wbvers = "EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B"
+  End If
+  
+  document.write "<object ID=""WB"" WIDTH=0 HEIGHT=0 CLASSID=""CLSID:"
+  document.write wbvers & """> </object>"
+
+</script>
